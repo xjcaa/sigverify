@@ -1,0 +1,14 @@
+[package]
+name = "sig-verify"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ed25519-dalek = "1"
+solana-sdk = "1.14.18"
+rand = "0.7.0"
+bincode = "2.0.0-rc.3"
+rayon = "1.7.0"
+tokio = { version = "1.24.1", features = ["rt-multi-thread", "sync", "macros"] }
