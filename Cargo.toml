@@ -6,9 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+blst = "0.3.10"
+rust_decimal = { version = "1.29", features = ["serde-with-arbitrary-precision", "bincode"] }
 ed25519-dalek = "1"
-solana-sdk = "1.14.18"
 rand = "0.7.0"
-bincode = "2.0.0-rc.3"
 rayon = "1.7.0"
 tokio = { version = "1.24.1", features = ["rt-multi-thread", "sync", "macros"] }
+reqwest = { version = "0.11.18", features = ["json"] }
+axum = { version = "0.6.1", features = ["ws"] }
+engine = { path = "../../../layern/nord/engine/" }
+secp256k1 = { version = "0.27.0", features = ["global-context", "rand-std", "bitcoin-hashes-std"] }
+
+[patch.crates-io]
+rust_decimal = { git = "https://github.com/cherryman/rust-decimal.git", branch = "master" }
