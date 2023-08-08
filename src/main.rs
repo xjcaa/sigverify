@@ -5,6 +5,7 @@ use engine::{
 };
 use rand::rngs::OsRng;
 use rand::RngCore;
+use rust_decimal::Decimal;
 use std::error::Error;
 
 use secp256k1::ecdsa::Signature as SecpSignature;
@@ -39,12 +40,18 @@ async fn send_action_blst(
     let sig_bytes = Bytes::from(sig.to_bytes().to_vec());
     let x = [msg_bytes, sig_bytes].concat();
     let client = reqwest::Client::new();
+    let len = x.len();
     let res = client
         .post("http://localhost:3000/action")
         .body(x)
         .send()
         .await?;
-    println!("Action: {:?} - Result: {:?}", action, res.text().await?);
+    println!(
+        "Bytes size: {}, Action: {:?} - Result: {:?}",
+        len,
+        action,
+        res.text().await?
+    );
     Ok(())
 }
 
@@ -55,12 +62,18 @@ async fn send_action_ed25119(action: Action, keypair: &Keypair) -> Result<(), Bo
     let sig_bytes = Bytes::from(signature.to_bytes().to_vec());
     let x = [msg_bytes, sig_bytes].concat();
     let client = reqwest::Client::new();
+    let len = x.len();
     let res = client
         .post("http://localhost:3000/action")
         .body(x)
         .send()
         .await?;
-    println!("Action: {:?} - Result: {:?}", action, res.text().await?);
+    println!(
+        "Size: {}, Action: {:?} - Result: {:?}",
+        len,
+        action,
+        res.text().await?
+    );
     Ok(())
 }
 
@@ -74,12 +87,18 @@ async fn send_action_secp(action: Action, keypair: &SecretKey) -> Result<(), Box
     let sig_bytes = Bytes::copy_from_slice(&bytes_sig[..]);
     let x = [msg_bytes, sig_bytes].concat();
     let client = reqwest::Client::new();
+    let len = x.len();
     let res = client
         .post("http://localhost:3000/action")
         .body(x)
         .send()
         .await?;
-    println!("Action: {:?} - Result: {:?}", action, res.text().await?);
+    println!(
+        "Size: {}, Action: {:?} - Result: {:?}",
+        len,
+        action,
+        res.text().await?
+    );
     /*
     let (action, size) = Action::decode(&x[..]).unwrap();
     println!("Action: {:?} :: {}", action, size);
@@ -115,6 +134,7 @@ async fn registration() -> Result<(), Box<dyn Error>> {
     let sig_bytes = Bytes::from(signature.to_bytes().to_vec());
     let x = [msg_bytes, sig_bytes].concat();
 
+    let len = x.len();
     /*
     let msg_decoded: (Action, usize) =
         bincode::decode_from_slice(&x[..], bincode::config::standard()).unwrap();
@@ -129,7 +149,7 @@ async fn registration() -> Result<(), Box<dyn Error>> {
         .send()
         .await?;
 
-    println!("Registration: {:?}", res.text().await?);
+    println!("len: {}, Registration: {:?}", len, res.text().await?);
     Ok(())
 }
 
@@ -157,6 +177,7 @@ async fn deposit(user_id: UserId) -> Result<(), Box<dyn Error>> {
         .to_bytes();
     */
 
+    let len = x.len();
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:3000/action")
@@ -164,7 +185,7 @@ async fn deposit(user_id: UserId) -> Result<(), Box<dyn Error>> {
         .send()
         .await?;
 
-    println!("Registration: {:?}", res.text().await?);
+    println!("Size: {}, Registration: {:?}", len, res.text().await?);
     Ok(())
 }
 
@@ -246,7 +267,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let sk = get_keypair_bls(false);
     let pk = sk.sk_to_pk();
 
-    /*
     send_action_ed25119(
         Action::CreateUser(CreateUser {
             auth_key: AuthKey::Ed25119(keypair.public.to_bytes()),
@@ -267,6 +287,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Action::CreateSession(CreateSession {
             user_id: 0,
             blst_key: pk.to_bytes(),
+            expiry_timestamp: 0,
         }),
         &keypair,
     )
@@ -285,7 +306,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         &sk,
     )
     .await?;
-    */
+    /*
     let secp = Secp256k1::new();
     let secret = get_keypair_secp(false);
     let public_key = secret.public_key(&secp).serialize();
@@ -304,6 +325,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         &secret,
     )
     .await?;
+    */
 
     Ok(())
 }
